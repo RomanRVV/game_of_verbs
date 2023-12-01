@@ -19,10 +19,6 @@ def start(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Здравствуйте")
 
 
-def echo(update: Update, context: CallbackContext):
-    update.message.reply_text(update.message.text)
-
-
 def detect_intent_texts(update: Update, context: CallbackContext):
 
     from google.cloud import dialogflow
