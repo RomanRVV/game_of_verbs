@@ -1,12 +1,19 @@
-import vk_api
 import random
+
+import vk_api
 import vk_api as vk
 from vk_api.longpoll import VkLongPoll, VkEventType
-from environs import Env
+
 import uuid
+import telegram
+
+from environs import Env
+import logging
+
+from tg_bot import MyLogsHandler
 
 
-def echo(event, vk_api):
+def detect_intent_texts(event, vk_api):
 
     from google.cloud import dialogflow
 
@@ -34,17 +41,28 @@ def echo(event, vk_api):
 
 
 def main():
-    env = Env()
-    env.read_env()
+    try:
+        env = Env()
+        env.read_env()
 
-    vk_token = env('vk_token')
-    vk_session = vk.VkApi(token=vk_token)
-    vk_api = vk_session.get_api()
-    longpoll = VkLongPoll(vk_session)
+        vk_token = env('vk_token')
+        tg_token = env('tg_bot_key')
+        admin_chat_id = env("admin_chat_id")
 
-    for event in longpoll.listen():
-        if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-            echo(event, vk_api)
+        bot = telegram.Bot(token=tg_token)
+        bot.logger.addHandler(MyLogsHandler(bot, admin_chat_id))
+        bot.logger.warning('ВК бот запущен')
+
+        vk_session = vk.VkApi(token=vk_token)
+        vk_api = vk_session.get_api()
+        longpoll = VkLongPoll(vk_session)
+
+        for event in longpoll.listen():
+            if event.type == VkEventType.MESSAGE_NEW and event.to_me:
+                detect_intent_texts(event, vk_api)
+    except Exception as e:
+        error_message = f"Бот упал с ошибкой: {str(e)}"
+        bot.logger.warning(error_message)
 
 
 if __name__ == "__main__":

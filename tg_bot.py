@@ -8,11 +8,16 @@ from telegram import Update, ForceReply
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
 
 
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s', level=logging.INFO
-)
+class MyLogsHandler(logging.Handler):
 
-logger = logging.getLogger(__name__)
+    def __init__(self, bot, chat_id):
+        super().__init__()
+        self.chat_id = chat_id
+        self.bot = bot
+
+    def emit(self, record):
+        log_message = self.format(record)
+        self.bot.send_message(chat_id=self.chat_id, text=log_message)
 
 
 def start(update: Update, context: CallbackContext):
@@ -43,19 +48,28 @@ def detect_intent_texts(update: Update, context: CallbackContext):
 
 
 def main():
-    env = Env()
-    env.read_env()
+    try:
+        env = Env()
+        env.read_env()
 
-    tg_token = env('tg_bot_key')
+        tg_token = env('tg_bot_key')
+        admin_chat_id = env("admin_chat_id")
 
-    updater = Updater(token=tg_token)
-    dispatcher = updater.dispatcher
+        bot = telegram.Bot(token=tg_token)
+        bot.logger.addHandler(MyLogsHandler(bot, admin_chat_id))
+        bot.logger.warning('ТГ бот запущен')
 
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, detect_intent_texts))
+        updater = Updater(token=tg_token)
+        dispatcher = updater.dispatcher
 
-    updater.start_polling()
-    updater.idle()
+        dispatcher.add_handler(CommandHandler("start", start))
+        dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, detect_intent_texts))
+
+        updater.start_polling()
+        updater.idle()
+    except Exception as e:
+        error_message = f"Бот упал с ошибкой: {str(e)}"
+        bot.logger.warning(error_message)
 
 
 if __name__ == '__main__':
