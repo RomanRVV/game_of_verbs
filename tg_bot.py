@@ -52,7 +52,7 @@ def main():
         env = Env()
         env.read_env()
 
-        tg_token = env('tg_bot_key')
+        tg_token = env('tg_token')
         admin_chat_id = env("admin_chat_id")
 
         bot = telegram.Bot(token=tg_token)
