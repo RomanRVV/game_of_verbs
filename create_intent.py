@@ -34,10 +34,12 @@ def main():
     questions = json.loads(questions_json)
     work_questions = questions['Устройство на работу']['questions']
     work_answer = questions['Устройство на работу']['answer']
-    create_intent("gameofverbs-406212",
-                  'Как устроиться к вам на работу',
+    project_id = "gameofverbs-406212"
+    display_name = 'Как устроиться к вам на работу'
+    create_intent(project_id,
+                  display_name,
                   work_questions,
-                  [work_answer])
+                  work_answer)
 
 
 if __name__ == '__main__':
