@@ -43,7 +43,7 @@ def main():
     for display_name, phrase in phrases.items():
         questions = phrase.get('questions', [])
         answer = phrase.get('answer', '')
-        project_id = env('project_id')
+        project_id = env('PROJECT_ID')
         create_intent(project_id,
                       display_name,
                       questions,

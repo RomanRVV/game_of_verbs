@@ -1,3 +1,4 @@
+import os
 import telegram
 from environs import Env
 
@@ -6,9 +7,10 @@ import uuid
 
 from telegram import Update, ForceReply
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from google.cloud import dialogflow
 
 
-class MyLogsHandler(logging.Handler):
+class TelegramLogsHandler(logging.Handler):
 
     def __init__(self, bot, chat_id):
         super().__init__()
@@ -26,9 +28,7 @@ def start(update: Update, context: CallbackContext):
 
 def detect_intent_texts(update: Update, context: CallbackContext):
 
-    from google.cloud import dialogflow
-
-    project_id = "gameofverbs-406212"
+    project_id = os.environ.get('PROJECT_ID')
 
     language_code = "ru"
 
@@ -51,12 +51,10 @@ def main():
     try:
         env = Env()
         env.read_env()
-
-        tg_token = env('tg_token')
-        admin_chat_id = env("admin_chat_id")
-
+        tg_token = env('TG_TOKEN')
+        admin_chat_id = env('ADMIN_CHAT_ID')
         bot = telegram.Bot(token=tg_token)
-        bot.logger.addHandler(MyLogsHandler(bot, admin_chat_id))
+        bot.logger.addHandler(TelegramLogsHandler(bot, admin_chat_id))
         bot.logger.warning('ТГ бот запущен')
 
         updater = Updater(token=tg_token)

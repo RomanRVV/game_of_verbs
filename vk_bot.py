@@ -10,14 +10,11 @@ import telegram
 from environs import Env
 import logging
 
-from tg_bot import MyLogsHandler
+from tg_bot import TelegramLogsHandler
+from google.cloud import dialogflow
 
 
-def detect_intent_texts(event, vk_api):
-
-    from google.cloud import dialogflow
-
-    project_id = "gameofverbs-406212"
+def detect_intent_texts(event, vk_api, project_id):
 
     language_code = "ru"
 
@@ -45,12 +42,13 @@ def main():
         env = Env()
         env.read_env()
 
-        vk_token = env('vk_token')
-        tg_token = env('tg_token')
-        admin_chat_id = env("admin_chat_id")
+        vk_token = env('VK_TOKEN')
+        tg_token = env('TG_TOKEN')
+        admin_chat_id = env('ADMIN_CHAT_ID')
+        project_id = env('PROJECT_ID')
 
         bot = telegram.Bot(token=tg_token)
-        bot.logger.addHandler(MyLogsHandler(bot, admin_chat_id))
+        bot.logger.addHandler(TelegramLogsHandler(bot, admin_chat_id))
         bot.logger.warning('ВК бот запущен')
 
         vk_session = vk.VkApi(token=vk_token)
@@ -59,7 +57,7 @@ def main():
 
         for event in longpoll.listen():
             if event.type == VkEventType.MESSAGE_NEW and event.to_me:
-                detect_intent_texts(event, vk_api)
+                detect_intent_texts(event, vk_api, project_id)
     except Exception as e:
         error_message = f"Бот упал с ошибкой: {str(e)}"
         bot.logger.warning(error_message)
