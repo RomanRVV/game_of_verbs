@@ -1,5 +1,7 @@
 ﻿from google.cloud import dialogflow
+import argparse
 import json
+from environs import Env
 
 
 def create_intent(project_id, display_name, training_phrases_parts, message_texts):
@@ -28,18 +30,24 @@ def create_intent(project_id, display_name, training_phrases_parts, message_text
 
 
 def main():
-    with open("questions.json", "r", encoding="UTF-8") as my_file:
-        questions_json = my_file.read()
 
-    questions = json.loads(questions_json)
-    work_questions = questions['Устройство на работу']['questions']
-    work_answer = questions['Устройство на работу']['answer']
-    project_id = "gameofverbs-406212"
-    display_name = 'Как устроиться к вам на работу'
-    create_intent(project_id,
-                  display_name,
-                  work_questions,
-                  work_answer)
+    parser = argparse.ArgumentParser(description='Создание интентов.')
+    parser.add_argument('--json_file', type=str, default='phrases.json')
+    args = parser.parse_args()
+    env = Env()
+    env.read_env()
+
+    with open(args.json_file, "r", encoding="UTF-8") as file:
+        phrases = json.load(file)
+
+    for display_name, phrase in phrases.items():
+        questions = phrase.get('questions', [])
+        answer = phrase.get('answer', '')
+        project_id = env('project_id')
+        create_intent(project_id,
+                      display_name,
+                      questions,
+                      answer)
 
 
 if __name__ == '__main__':
