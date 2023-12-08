@@ -1,5 +1,8 @@
 # Game of verbs
 Проект создан для интегрирования DialogFlow в чат-ботов Telegram и VK.
+![тг бот](https://github.com/RomanRVV/game_of_verbs/assets/129319859/06631afa-f5f2-433d-a1a3-585a3f437417)
+
+Ссылки на группу [ВК](https://vk.com/club223682986) и [Телеграмм бота](https://t.me/gameofverbs_bot)
 
 ## Как установить
 Для запуска скрипта вам понадобится Python 3.10
