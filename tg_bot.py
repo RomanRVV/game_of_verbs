@@ -14,7 +14,7 @@ def start(update: Update, context: CallbackContext):
 
 def send_answer(update: Update, context: CallbackContext, project_id):
     text = update.message.text
-    answer = detect_intent_texts(text, project_id)
+    answer, fallback = detect_intent_texts(text, project_id)
 
     update.message.reply_text(answer)
 
