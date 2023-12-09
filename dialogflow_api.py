@@ -4,9 +4,8 @@ import uuid
 from google.cloud import dialogflow
 
 
-def detect_intent_texts(text):
+def detect_intent_texts(text, project_id):
 
-    project_id = os.environ.get('PROJECT_ID')
     language_code = "ru"
 
     session_client = dialogflow.SessionsClient()
@@ -21,6 +20,6 @@ def detect_intent_texts(text):
         request={"session": session, "query_input": query_input}
     )
     answer = response.query_result.fulfillment_text
+    fallback = response.query_result.intent.is_fallback
 
-    if not response.query_result.intent.is_fallback:
-        return answer
+    return answer, fallback

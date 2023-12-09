@@ -12,12 +12,11 @@ def start(update: Update, context: CallbackContext):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Здравствуйте")
 
 
-def send_answer(update: Update, context: CallbackContext):
+def send_answer(update: Update, context: CallbackContext, project_id):
     text = update.message.text
-    answer = detect_intent_texts(text)
-    if answer:
-        update.message.reply_text(answer)
+    answer = detect_intent_texts(text, project_id)
 
+    update.message.reply_text(answer)
 
 
 def main():
@@ -26,6 +25,7 @@ def main():
         env.read_env()
         tg_token = env('TG_TOKEN')
         admin_chat_id = env('ADMIN_CHAT_ID')
+        project_id = env('PROJECT_ID')
         bot = telegram.Bot(token=tg_token)
         bot.logger.addHandler(TelegramLogsHandler(bot, admin_chat_id))
         bot.logger.warning('ТГ бот запущен')
@@ -34,7 +34,8 @@ def main():
         dispatcher = updater.dispatcher
 
         dispatcher.add_handler(CommandHandler("start", start))
-        dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, send_answer))
+        dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command,
+                                              lambda update, context: send_answer(update, context, project_id)))
 
         updater.start_polling()
         updater.idle()
